@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
     # 示例
     car_name = "奔驰E级 2025款 改款 E 260 L"
-    node_name = "颜色"
+    node_name = "基本参数"
     node_field = None
 
     result = processor.handle_query(car_name, node_name, node_field)

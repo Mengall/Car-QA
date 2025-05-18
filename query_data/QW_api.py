@@ -1,6 +1,5 @@
 import os
 import time
-
 from openai import OpenAI
 import json
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -75,7 +74,6 @@ class LLMExtract:
             body = question['主体']
             object = question['客体']
             question_list.append([body] + object)
-
         return question_list
 
 # if __name__=="__main__":

@@ -11,7 +11,7 @@ import time
 class LoadModel:
     def __init__(self):
         self.base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../models/Qwen-llm1.5-1.8B"))
-        self.lora_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../models/Lora_Qwen_llm/model2"))
+        self.lora_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../models/Lora_Qwen_llm/5-16best"))
 
     def load_base_model(self):
         model = AutoModelForCausalLM.from_pretrained(
@@ -42,7 +42,7 @@ class LoadModel:
                 max_new_tokens=512,
                 do_sample=True,
                 top_p=0.9,  # 0.85 0.95
-                # temperature=0.6,  # 0.9 0.45
+                # temperature=0.2,  # 0.9 0.45
                 repetition_penalty=1.1,  # 1.2 1.2
             )
         response = tokenizer.decode(outputs[0], skip_special_tokens=True)
@@ -65,6 +65,7 @@ if __name__ == "__main__":
             print("已退出对话。")
             break
         prompt = f"""请根据以下'输入'字段中的JSON格式车辆信息生成简洁的自然语言描述。生成的结果应该以'输出'字段的形式呈现：\n输入：{text}\n输出："""
+        # prompt = f"""指令：请根据以下'输入'字段中的JSON内的所有内容，用人性化的自然语言的方式描述出来。生成的结果作为'输出'字段的结果：\n输入：{text}\n输出："""
         result = model_loader.infer(prompt, model, tokenizer)
         print("模型输出：", result)
         # print("该问题有", len(text), "个属性")
