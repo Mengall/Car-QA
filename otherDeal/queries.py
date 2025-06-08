@@ -36,16 +36,16 @@ def q_basic_info(text_list, fields=None):
         return f"""MATCH (n:`基本参数`) WHERE n.车型名称 IN [{text_str}] RETURN n.车型名称 as 车型名称, {field_str}"""
     return f"""MATCH (n:`基本参数`) WHERE n.车型名称 IN {text_list} RETURN n"""
 
-
+# 品牌->系列 系列->车型 系列->品牌 车型->系列 车型->品牌
 # 品牌和品牌系列
 # 奔驰有哪些系列？
 def q_brand_series(text):
-    return f"""MATCH (b:品牌 {{品牌: '{text}'}})-[:包含]->(n:品牌系列) RETURN n.品牌系列"""
+    return f"""MATCH (b:品牌 {{品牌: '{text}'}})-[:包含]->(n:品牌系列) RETURN n.品牌系列 as 品牌系列"""
 
 
 # 某系列属于哪个品牌 奔驰E级属于哪个品牌？
 def q_series_brand(text):
-    return f"""MATCH (b:品牌)-[:包含]->(n:品牌系列 {{品牌系列: '{text}'}}) RETURN b.品牌"""
+    return f"""MATCH (n:品牌)-[:包含]->(s:品牌系列 {{品牌系列: '{text}'}})RETURN n.品牌 as 品牌"""
 
 
 # 某系列有哪些车型？
@@ -53,7 +53,12 @@ def q_series_car(text):
     return f"""MATCH (n:基本参数 {{品牌系列: '{text}'}}) RETURN n.车型名称 as 车型名称"""
 
 
-# 发动机和传动系统
-# 发动机信息
-def q_engine(text):
-    return f"""MATCH (n:`基本参数` {{车型名称: '{text}'}})-[:包含]->(s:发动机) RETURN n.车型名称 as 车型名称,s"""
+# 车型的系列
+def q_car_series(text):
+    return f"""MATCH (n:品牌系列)-[:包含]->(s:基本参数 {{车型名称: '{text}'}}) RETURN n.品牌系列 as 品牌系列"""
+
+
+# 车型的品牌
+def q_car_brand(text):
+    return f"""MATCH (n:品牌)-[:包含]->(b:品牌系列)-[:包含]->(s:基本参数 {{车型名称: '{text}'}})RETURN n.品牌 as 品牌"""
+

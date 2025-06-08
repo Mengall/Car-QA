@@ -1,0 +1,52 @@
+1.品牌与品牌系列关系 2.品牌系列与基本参数关系
+	MATCH (b:品牌)
+	MATCH (s:品牌系列)
+	WHERE s.品牌 = b.品牌
+	MERGE (b)-[:包含]->(s);
+
+	MATCH (s:品牌系列), (p:基本参数)
+	WHERE p.品牌系列 = s.品牌系列
+	MERGE (s)-[:包含]->(p);
+
+3.基本参数与其他参数关系
+一个：
+	MATCH (s:基本参数), (p:变速箱)
+	WHERE p.CAR_ID = s.CAR_ID
+	MERGE (s)-[:包含]->(p);
+多个：
+MATCH (s:基本参数)
+OPTIONAL MATCH (p1:主动安全) WHERE p1.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p2:发动机) WHERE p2.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p3:变速箱) WHERE p3.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p4:四驱_越野) WHERE p4.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p5:外后视镜) WHERE p5.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p6:外观_防盗) WHERE p6.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p7:天窗_玻璃) WHERE p7.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p8:屏幕_系统) WHERE p8.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p9:底盘转向) WHERE p9.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p10:座椅配置) WHERE p10.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p11:方向盘_内后视镜) WHERE p11.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p12:智能化配置) WHERE p12.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p13:特色配置) WHERE p13.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p14:电动机) WHERE p14.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p15:电池_充电) WHERE p15.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p16:空调_冰箱) WHERE p16.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p17:被动安全) WHERE p17.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p18:车内充电) WHERE p18.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p19:车外灯光) WHERE p19.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p20:车身) WHERE p20.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p21:车轮制动) WHERE p21.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p22:选装包) WHERE p22.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p23:音响_车内灯光) WHERE p23.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p24:颜色) WHERE p24.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p25:驾驶功能) WHERE p25.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p26:驾驶操控) WHERE p26.CAR_ID = s.CAR_ID
+OPTIONAL MATCH (p27:驾驶硬件) WHERE p27.CAR_ID = s.CAR_ID
+
+WITH s, [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10,
+         p11, p12, p13, p14, p15, p16, p17, p18, p19, p20,
+         p21, p22, p23, p24, p25, p26, p27] AS nodes
+
+UNWIND nodes AS p
+WITH s, p WHERE p IS NOT NULL
+MERGE (s)-[:包含]->(p);

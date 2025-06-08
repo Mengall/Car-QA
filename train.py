@@ -59,7 +59,7 @@ def setup_logger(log_dir="./logs", log_prefix="train_log"):
 
 
 def load_data():
-    with open("./data/new_car_finetune_data.jsonl", 'r', encoding='utf-8') as f:
+    with open("./data/lora_data/train/car_finetune_data.jsonl", 'r', encoding='utf-8') as f:
         lines = f.readlines()
         return [json.loads(line.strip()) for line in lines]
 

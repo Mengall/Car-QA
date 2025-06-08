@@ -20,7 +20,7 @@ class QueryHandler:
         """ 格式化字典为 JSON 字符串 """
         return json.dumps(data, ensure_ascii=False, indent=4)
 
-    def get_most_similar(self, sim_model, text, threshold=0.5, k=5):
+    def get_most_similar(self, sim_model, text, threshold=0.85, k=5):
         """ 获取最相似的项，返回名称和相似度 """
         try:
             vector_dict = sim_model.query_vector(text, k)
@@ -45,13 +45,13 @@ class QueryHandler:
         result_list = []  # 新增：用于保存最终结构化结果
         for data_list in llm_output:
             object_list = []  # 每个主体对应的客体列表
-            max_similar_field, _ = self.get_most_similar(body_llm, data_list[0])
+            max_similar_field, _ = self.get_most_similar(body_llm, data_list[0])  # 匹配主体相似度
 
             for node_field_list in data_list[1:]:
                 node = node_field_list['节点']
                 field = None
                 if node_field_list['字段'] and str(node_field_list['字段']).lower() != 'null':
-                    field, _ = self.get_most_similar(object_llm, node_field_list['字段'])
+                    field, _ = self.get_most_similar(object_llm, node_field_list['字段'])  # 匹配客体相似度
                 object_list.append({
                     "节点": node,
                     "字段": field
@@ -109,8 +109,12 @@ class QueryHandler:
         # 大模型三元组提取
         llm = LLMExtract()
         llm_output = llm.get_api_modle(question)
+        print(llm_output)
+        # 大模型没有匹配到汽车领域的问题，返回None
+        if not llm_output:
+            return None
         # 规则匹配
-        if is_car_in_body(llm_output, self.body_data) and are_fields_valid(llm_output, self.object_data):
+        elif is_car_in_body(llm_output, self.body_data) and are_fields_valid(llm_output, self.object_data):
             result = merge_same_node_fields(llm_output)
             result = self.convert_triplets_to_dict(result)
             print("规则匹配结果：", result)
@@ -137,10 +141,10 @@ if __name__ == "__main__":
     query_handler = QueryHandler(model_path, body_index, body_json, object_index, object_json, body_data, object_data)
 
     # 示例问题
-    question = "奔驰E级 2025款 改款 E 260 L的颜色和发动机"
+    question = "奔驰E级 2025款 改款 E 260 L的外观、基本参数和颜色"
     results = query_handler.extract_information(question)
 
     # 打印最终结果
     print("最终提取结果：")
     print(results)
-    print(json.dumps(results, ensure_ascii=False, indent=4))
+    # print(json.dumps(results, ensure_ascii=False, indent=4))

@@ -45,9 +45,7 @@ def load_csv_to_neo4j(file_path, node_label):
     with driver.session() as session:
         for i, row in df.iterrows():
             clean_row = {k: v if pd.notna(v) else "无" for k, v in row.items()}
-
             properties = ", ".join(f"`{col}`: ${col}" for col in df.columns)  # 使用反引号包围列名
-
             query = f"""
             MERGE (n:{node_label} {{ {properties} }})
             """

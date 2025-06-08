@@ -23,11 +23,13 @@ class SimilarExtract:
     def query_vector(self, user_input: str, k: int = 5) -> Dict[str, float]:
         # 获取归一化的句向量
         input_vector = normalize(
-            self.model.encode([user_input], convert_to_numpy=True).astype(np.float32),
-            norm='l2'
+            self.model.encode([user_input],
+                              convert_to_numpy=True).astype(np.float32),
+                              norm='l2'
         )
         distances, indices = self.index.search(input_vector, k)
-
+        # 相似度
+        # print(distances, indices)
         result_vector = {}
         # print(f"「{user_input}」相似度：")
         for i, idx in enumerate(indices[0]):
@@ -47,18 +49,18 @@ class SimilarExtract:
             print("未找到相似结果。")
             return None, None
 
-# if __name__ == "__main__":
-#     model_path = r"..\models\models--moka-ai--m3e-base\snapshots\764b537a0e50e5c7d64db883f2d2e051cbe3c64c"
-#
-#     body_index = "../data/body_car_vectors_ip.index"
-#     body_json = "../data/body_car_name.json"
-#     object_index = "../data/object_car_vectors_ip.index"
-#     object_json = "../data/object_car_name.json"
-#     model = SentenceTransformer(model_path, device="cpu")
-#     llm = SimilarExtract(model, object_index, object_json)
-#     # 用户输入
-#     user_input = "颜色"
-#     vector_dict = llm.query_vector(user_input)
-#     print(vector_dict)
-#     print(llm.max_similar(vector_dict))
 
+if __name__ == "__main__":
+    model_path = r"..\models\models--moka-ai--m3e-base\snapshots\764b537a0e50e5c7d64db883f2d2e051cbe3c64c"
+
+    body_index = "../data/body_car_vectors_ip.index"
+    body_json = "../data/body_car_name.json"
+    object_index = "../data/object_car_vectors_ip.index"
+    object_json = "../data/object_car_name.json"
+    model = SentenceTransformer(model_path, device="cpu")
+    llm = SimilarExtract(model, object_index, object_json)
+    # 用户输入
+    user_input = "吃什么"
+    vector_dict = llm.query_vector(user_input)
+    print(vector_dict)
+    print(llm.max_similar(vector_dict))

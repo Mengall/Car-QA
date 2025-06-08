@@ -16,45 +16,71 @@ processor = CarQueryProcessor(
     body_path="../data/body_field_map.json",
     object_path="../data/object_field_map.json"
 )
-# load_model = processor.loadModel()
-# model, tokenizer = load_model.
-# # === 示例问题 ===
-# question = "奔驰E级 2025款 改款 E 260 L 的基本参数"
-# prompt = processor.batch_query_from_question(question)
-# answer = processor.llm_answer(prompt, model)
 
-with gr.Blocks() as demo:
-    chatbot = gr.Chatbot(type="messages")
-    msg = gr.Textbox()
-    clear = gr.Button("Clear")
+with gr.Blocks(title="CAR-QA", css="""
+    .container { width: 90%; max-width: 90%; margin: 0 auto; }
+    #chatbot { height: 400px }
+""") as demo:
+    with gr.Column(elem_classes="container"):
+        gr.HTML("""
+            <div style="text-align: center; margin-bottom: 1rem">
+                <h1 style="color: #2f80ed; margin-bottom: 0.5rem">🚗 智能汽车问答系统</h1>
+                <p style="color: #666; font-size: 0.9rem">您的专业汽车咨询助手，为您解答各类汽车相关问题</p>
+            </div>
+        """)
+        
+        initial_message = [{
+            "role": "assistant",
+            "content": "👋 您好！我是汽车问答助手。\n我可以回答关于汽车的各种问题，例如：\n- 奔驰E级 2025款 改款 E 260 L 的基本参数\n- 宝马3系的动力性能如何\n请问您想了解什么？"
+        }]
+        
+        chatbot = gr.Chatbot(
+            value=initial_message, 
+            type="messages",
+            height=400,  # 调整高度
+            container=True,
+            elem_classes="chatbot"
+        )
+        
+        with gr.Row(elem_classes="input-row"):
+            msg = gr.Textbox(
+                placeholder="请输入您的问题...", 
+                label="问题输入",
+                scale=9
+            )
+            with gr.Column(scale=1):
+                submit = gr.Button("发送", variant="primary")
+                clear = gr.Button("清空", variant="secondary")
 
-    def user(user_message, history: list):
-        return "", history + [{"role": "user", "content": user_message}]
+    def user(user_message, history):
+        history = history or []
+        history.append({"role": "user", "content": user_message})
+        return "", history
 
-
-    def bot(history: list):
+    def bot(history):
+        if not history:
+            return history
+            
         user_message = history[-1]["content"]
         try:
-            start_time = time.time()  # ⏱️ 开始计时
-
+            start_time = time.time()
             prompt = processor.batch_query_from_question(user_message)
             answer = processor.llm_answer(prompt)
-
-            end_time = time.time()  # ⏱️ 结束计时
-            duration = end_time - start_time
-            print(f"[INFO] 查询耗时：{duration:.2f} 秒")
-
+            end_time = time.time()
+            print(f"[INFO] 查询耗时：{end_time - start_time:.2f} 秒")
         except Exception as e:
             answer = f"[ERROR] 处理问题时出错：{str(e)}"
-        history.append({"role": "assistant", "content": ""})
-        for ch in answer:
-            history[-1]["content"] += ch
-            yield history
+            
+        history.append({"role": "assistant", "content": answer})
+        yield history
 
     msg.submit(user, [msg, chatbot], [msg, chatbot], queue=False).then(
         bot, chatbot, chatbot
     )
-    clear.click(lambda: None, None, chatbot, queue=False)
+    submit.click(user, [msg, chatbot], [msg, chatbot], queue=False).then(
+        bot, chatbot, chatbot
+    )
+    clear.click(lambda: [], None, chatbot, queue=False)
 
 if __name__ == "__main__":
     demo.launch(share=True)

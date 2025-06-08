@@ -18,13 +18,25 @@ def load_json_file(file_path, encoding='utf-8'):
     return None
 
 
+def get_series():
+    series_list = []
+    datas = load_json_file("../data/body_field_map.json", encoding="utf-8")
+    for values in datas.values():
+        for series in values.keys():
+            series_list.append(series)
+    return series_list
+
+
 def is_car_in_body(data, body_data):
     """
     检查所有车辆是否在 body_data 的值中
     """
     all_car_names = set()
-    for _, field_list in body_data.items():
-        for car_list in field_list.values():
+    for brand, field_list in body_data.items():
+        all_car_names.add(brand)
+        for series, car_list in field_list.items():
+            # print(series)
+            all_car_names.add(series)
             all_car_names.update(car_list)
 
     for car in data:
@@ -32,6 +44,7 @@ def is_car_in_body(data, body_data):
         if car_name not in all_car_names:
             print(f"[错误] 车型 '{car_name}' 不存在于 body_data 中")
             return False
+
     return True
 
 
@@ -65,10 +78,10 @@ def merge_same_node_fields(data):
         null_fields = []
 
         for field_info in car[1:]:
-            node = field_info["节点"]
-            field = field_info["字段"]
+            node = field_info.get("节点")
+            field = field_info.get("字段")
 
-            if field == "null":
+            if field is None:
                 null_fields.append(field_info)
                 continue
 
@@ -99,7 +112,7 @@ def process_data_if_valid(data, body_data, object_data):
 
     if is_car_in_body(data, body_data) and are_fields_valid(data, object_data):
         merged_data = merge_same_node_fields(data)
-        print("\n[合并后的数据]")
+        # print("\n[合并后的数据]")
         # for car in merged_data:
         #     print(json.dumps(car, ensure_ascii=False, indent=2))
         return merged_data
@@ -109,9 +122,8 @@ def process_data_if_valid(data, body_data, object_data):
 
 
 # # 示例数据
-# d1 = [['保时捷911 2025款 Carrera 3.0T', {'节点': '基本参数', '字段': '长_宽_高_mm'}, {'节点': '基本参数', '字段': '上市时间'},
+# a = [['保时捷911 2025款 Carrera 3.0T', {'节点': '基本参数', '字段': '长_宽_高_mm'}, {'节点': '基本参数', '字段': '上市时间'},
 #        {'节点': '发动机', '字段': None}]]
-#
 # data = [
 #     ['保时捷911 2025款 Carrera 3.0T', {'节点': '颜色', '字段': '内饰颜色'}, {'节点': '发动机', '字段': 'null'},
 #      {'节点': '颜色', '字段': '外观颜色'}],
@@ -119,10 +131,12 @@ def process_data_if_valid(data, body_data, object_data):
 #      {'节点': '颜色', '字段': '内饰颜色'}, {'节点': '座椅配置', '字段': 'null'},
 #      {'节点': '基本参数', '字段': '长_宽_高_mm'}]
 # ]
+# a1 = [['奔驰E级', {'节点': '品牌'}], ['奔驰', {'节点': '品牌系列'}]]
+#
 #
 # # 载入外部 JSON 数据
 # o = load_json_file("../data/object_field_map.json")
 # b = load_json_file("../data/body_field_map.json")
 #
 # # 处理数据
-# process_data_if_valid(d1, b, o)
+# process_data_if_valid(a1, b, o)
