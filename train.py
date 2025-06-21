@@ -24,7 +24,7 @@ model.to("cuda")
 lora_config = LoraConfig(
     r=8,
     lora_alpha=32,
-    target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],  # 微调哪些模块, 还有"gate_proj", "up_proj", "down_proj"
+    target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],  # 微调哪些模块
     lora_dropout=0.05,
     bias="none",
     task_type=TaskType.CAUSAL_LM
